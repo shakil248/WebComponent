@@ -1,0 +1,64 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/google-map/google-map.html">
+
+<dom-module id="find-post-code">
+<template>
+    <style>
+        google-map {
+                    height :400px;
+                    width : 400px;
+        }
+        paper-input {
+                    width : 400px;
+                    padding-bottom : 10px;
+        }
+    </style>
+
+     <paper-input id="locationInput" label="Find Postal code from location" required auto-validate error-message="needs some location!"></paper-input>
+     <paper-button raised on-click="setajax">Find Postal Code</paper-button>
+
+      <iron-ajax
+        id="ajax"
+        url=""
+        handle-as="json"
+        on-response="hresponse">
+      </iron-ajax>
+
+       <template is="dom-repeat" items="{{arr.results}}">
+            <div class="horizontal-section">
+                <h3>{{item.formatted_address}}</h3>
+            </div>
+            </template>
+
+            <google-map latitude="{{lat}}" longitude="{{lng}}">
+                <google-map-marker latitude="{{lat}}" longitude="{{lng}}"></google-map-marker>
+            </google-map>
+        </template>
+
+
+        <script>
+            Polymer({
+                is: "find-post-code",   
+                ready: function(){
+                    this.arr=[],
+                    this.lat="0",
+                    this.lng="0"
+                
+                },
+                setajax: function () {      
+                    this.$.ajax.url = "https://maps.google.com/maps/api/geocode/json";
+                    this.$.ajax.params = { "address": this.$.locationInput.value, "sensor":"true", "key":"AIzaSyAxM1GKDXkJhvqb8rLMEhVVNxYb0okCc5k" };
+                    this.$.ajax.generateRequest();
+                },
+                hresponse: function(request) {
+                    this.arr= request.detail.response;
+                    this.lat = request.detail.response.results[0].geometry.location.lat;
+                    this.lng = request.detail.response.results[0].geometry.location.lng;
+                },
+            
+            });
+        </script>
+</dom-module>
